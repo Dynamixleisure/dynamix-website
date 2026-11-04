@@ -645,6 +645,7 @@ if (mapEl && window.d3 && window.topojson) {
 
 /* contact: messages are delivered to hello@dynamixleisure.com */
 const CONTACT_EMAIL = 'hello@dynamixleisure.com';
+const WEB3FORMS_KEY = '51a36ec7-4451-4292-a4a0-68ef50067d20';
 const form = document.getElementById('form');
 if (form) form.addEventListener('submit', async e => {
   e.preventDefault();
@@ -659,13 +660,13 @@ if (form) form.addEventListener('submit', async e => {
   const fallback = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent('Enquiry from ' + v('company')) + '&body=' + encodeURIComponent('Name: ' + v('name') + '\nCompany: ' + v('company') + '\nEmail: ' + v('email') + '\nPhone: ' + v('phone') + '\nCountry: ' + v('country') + '\n\n' + v('msg'));
   try {
     const ctl = new AbortController(); const stop = setTimeout(() => ctl.abort(), 8000);
-    const res = await fetch('https://formsubmit.co/ajax/' + CONTACT_EMAIL, {
+    const res = await fetch('https://api.web3forms.com/submit', {
       signal: ctl.signal, method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ _subject: 'Website enquiry from ' + v('company'), _template: 'table', _captcha: 'false', _replyto: v('email'), Name: v('name'), Company: v('company'), Email: v('email'), Phone: v('phone'), Country: v('country'), Message: v('msg') })
+      body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: 'Website enquiry from ' + v('company'), from_name: 'Dynamix Leisure website', name: v('name'), email: v('email'), company: v('company'), phone: v('phone'), country: v('country'), message: v('msg') })
     });
     clearTimeout(stop);
     const data = await res.json().catch(() => ({}));
-    if (!res.ok || String(data.success) === 'false') throw new Error('send failed');
+    if (!res.ok || !(data.success === true || data.success === 'true')) throw new Error('send failed');
     form.reset(); say('Thank you. Your message has been sent and our team will reply shortly.', 'ok');
   } catch (err) {
     say('Sorry, that did not go through. Please <a href="' + fallback + '">email us directly</a> or write to ' + CONTACT_EMAIL + '.', 'err');
@@ -673,7 +674,5 @@ if (form) form.addEventListener('submit', async e => {
 });
 
 </script>
-</body>
-</html>
 </body>
 </html>
