@@ -426,6 +426,7 @@ if (heroImg && fine && !reduce) {
 
 /* hero: one orchestrated load sequence, started once the loader has left */
 const track = document.getElementById('track');
+let heroSplit = null;
 function startHero() {
   if (!track) return;
   const len = track.getTotalLength();
@@ -438,7 +439,7 @@ function startHero() {
       .add(() => {
         gsap.set('#h1', { opacity: 1 });
         try {
-          const split = SplitText.create('#h1', { type: 'words,chars', mask: 'words', charsClass: 'char' });
+          const split = heroSplit = SplitText.create('#h1', { type: 'words,chars', mask: 'words', charsClass: 'char' });
           gsap.from(split.chars, { yPercent: 120, rotateX: -70, opacity: 0, duration: 1.1, stagger: { each: .018, from: 'start' }, ease: 'power4.out', onComplete: () => split.revert() });
         } catch (e) { gsap.from('#h1', { y: 40, opacity: 0, duration: 1 }); }
       }, .45)
@@ -476,6 +477,15 @@ const fontsReady = (document.fonts && document.fonts.load)
   ? Promise.race([Promise.all([document.fonts.load('800 1em Montserrat'), document.fonts.load('500 1em Montserrat')]), new Promise(r => setTimeout(r, 3000))]).catch(() => {})
   : Promise.resolve();
 fontsReady.then(() => runLoader(startHero));
+
+
+/* failsafe: whatever happens to the intro, the headline must end up visible and as plain text */
+setTimeout(() => {
+  const h1 = document.getElementById('h1');
+  if (!h1) return;
+  if (heroSplit && h1.querySelector('.char')) { gsap.killTweensOf(h1.querySelectorAll('.char')); try { heroSplit.revert(); } catch (e) {} }
+  if (parseFloat(getComputedStyle(h1).opacity) < 1 && window.scrollY < 80) { gsap.killTweensOf(h1); gsap.to(h1, { opacity: 1, y: 0, duration: .5 }); }
+}, 7000);
 
 /* tagline cycle */
 const tags = [...document.querySelectorAll('.hero-tag span')];
@@ -648,7 +658,7 @@ if (form) form.addEventListener('submit', async e => {
   btn.disabled = true; label.textContent = 'Sending...'; sent.style.display = 'none';
   const fallback = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent('Enquiry from ' + v('company')) + '&body=' + encodeURIComponent('Name: ' + v('name') + '\nCompany: ' + v('company') + '\nEmail: ' + v('email') + '\nPhone: ' + v('phone') + '\nCountry: ' + v('country') + '\n\n' + v('msg'));
   try {
-    const ctl = new AbortController(); const stop = setTimeout(() => ctl.abort(), 20000);
+    const ctl = new AbortController(); const stop = setTimeout(() => ctl.abort(), 8000);
     const res = await fetch('https://formsubmit.co/ajax/' + CONTACT_EMAIL, {
       signal: ctl.signal, method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ _subject: 'Website enquiry from ' + v('company'), _template: 'table', _captcha: 'false', _replyto: v('email'), Name: v('name'), Company: v('company'), Email: v('email'), Phone: v('phone'), Country: v('country'), Message: v('msg') })
