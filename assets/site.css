@@ -99,7 +99,7 @@ h1,h2,h3{font-weight:700;line-height:1.05;letter-spacing:-.02em}
 }
 .hero-media{
   position:absolute;top:0;right:0;bottom:0;width:62%;z-index:0;overflow:hidden;background:transparent;
-  clip-path:inset(0 0 0 100%);transform-origin:70% 50%;
+  opacity:0;transform-origin:70% 50%;
   -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 8%,#000 20%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 8%,#000 20%);
 }
 .hero-media .layers{position:absolute;inset:-6%;width:112%;height:112%;will-change:transform;--hx:38%;--hy:50%}
@@ -483,5 +483,11 @@ footer .strip{width:100%;height:auto}
 .hero h1{font-kerning:none;font-feature-settings:"kern" 0;font-variant-ligatures:none}
 /* four stages in the pinned statement */
 .dbo .word{font-size:clamp(44px,min(7.3vw,13.5svh),160px);letter-spacing:.012em;line-height:1.24}
+/* WhatsApp chat button (all pages); back-to-top sits above it */
+.wa-btn{position:fixed;right:22px;bottom:22px;z-index:70;width:58px;height:58px;border-radius:50%;background:#25D366;display:grid;place-items:center;box-shadow:0 12px 30px rgba(0,0,0,.3);transition:transform .35s var(--ease),box-shadow .35s}
+.wa-btn:hover{transform:scale(1.08);box-shadow:0 16px 38px rgba(37,211,102,.45)}
+.wa-btn svg{width:32px;height:32px;fill:#fff}
+.totop-btn{bottom:92px}
+@media (max-width:520px){.wa-btn{right:16px;bottom:16px;width:54px;height:54px}.totop-btn{right:20px;bottom:84px}}
 /* eleven sector cards: four across, last row of three centred */
 @media (min-width:1201px){.sectors{grid-template-columns:repeat(8,1fr)}.sector{grid-column:span 2}.sector:nth-child(9){grid-column:2/span 2}}
