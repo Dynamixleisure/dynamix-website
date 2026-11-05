@@ -180,7 +180,7 @@
 <!-- WHAT WE DO -->
 <section class="section" id="services">
   <h2 class="h-lg r">What we do</h2>
-  <p class="lede r">Eleven services, from first concept to turning struggling businesses around. Take the ones your project needs, or hand us the whole venue.</p>
+  <p class="lede r">Eleven services, from first concept to turnaround.</p>
   <div class="svc-grid">
       <div class="svc-col r">
         <div class="svc-head"><span class="svc-step">01</span><h3>Before the build</h3><p>Decide what to build, and prove it pays.</p></div>
@@ -654,7 +654,7 @@ if (mapEl && window.d3 && window.topojson) {
 
 /* contact: messages are delivered to hello@dynamixleisure.com */
 const CONTACT_EMAIL = 'hello@dynamixleisure.com';
-const WEB3FORMS_KEY = '51a36ec7-4451-4292-a4a0-68ef50067d20';
+const WEB3FORMS_KEYS = ['51a36ec7-4451-4292-a4a0-68ef50067d20'];
 const form = document.getElementById('form');
 if (form) form.addEventListener('submit', async e => {
   e.preventDefault();
@@ -669,13 +669,16 @@ if (form) form.addEventListener('submit', async e => {
   const fallback = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent('Enquiry from ' + v('company')) + '&body=' + encodeURIComponent('Name: ' + v('name') + '\nCompany: ' + v('company') + '\nEmail: ' + v('email') + '\nPhone: ' + v('phone') + '\nCountry: ' + v('country') + '\n\n' + v('msg'));
   try {
     const ctl = new AbortController(); const stop = setTimeout(() => ctl.abort(), 8000);
-    const res = await fetch('https://api.web3forms.com/submit', {
+    const payload = { subject: 'Website enquiry from ' + v('company'), from_name: 'Dynamix Leisure website', name: v('name'), email: v('email'), company: v('company'), phone: v('phone'), country: v('country'), message: v('msg') };
+    /* one copy per access key (each key delivers to its own inbox); the visitor sees success if at least one copy is accepted */
+    await Promise.any(WEB3FORMS_KEYS.map(key => fetch('https://api.web3forms.com/submit', {
       signal: ctl.signal, method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: 'Website enquiry from ' + v('company'), from_name: 'Dynamix Leisure website', name: v('name'), email: v('email'), company: v('company'), phone: v('phone'), country: v('country'), message: v('msg') })
-    });
+      body: JSON.stringify(Object.assign({ access_key: key }, payload))
+    }).then(async res => {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !(data.success === true || data.success === 'true')) throw new Error('send failed');
+    })));
     clearTimeout(stop);
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !(data.success === true || data.success === 'true')) throw new Error('send failed');
     form.reset(); say('Thank you. Your message has been sent and our team will reply shortly.', 'ok');
   } catch (err) {
     say('Sorry, that did not go through. Please <a href="' + fallback + '">email us directly</a> or write to ' + CONTACT_EMAIL + '.', 'err');

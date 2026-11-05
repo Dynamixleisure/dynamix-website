@@ -507,8 +507,11 @@ footer .strip{width:100%;height:auto}
 .svc-col.turn .svc-head p{max-width:46ch}
 .svc-note{color:var(--grey);font-size:15px;line-height:1.65;margin-top:20px;max-width:56ch}
 @media (max-width:900px){.svc-col.turn{grid-template-columns:1fr;gap:20px}}
+/* the What we do intro stays on one line */
+#services .lede{white-space:nowrap;max-width:none}
 /* phones */
 @media (max-width:700px){
+  #services .lede{font-size:3.6vw}
   .stats{grid-template-columns:1fr 1fr;gap:34px 18px}
   .stat b{font-size:clamp(44px,14vw,64px)}
   .stat b::after{width:32px;margin:14px 0 10px}
